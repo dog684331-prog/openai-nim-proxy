@@ -90,7 +90,7 @@ app.post('/v1/chat/completions', async (req, res) => {
         }
       }
     }
-    
+    console.log(`Using model: ${nimModel} for request: ${model}`);
     // Transform OpenAI request to NIM format
     const nimRequest = {
       model: nimModel,
