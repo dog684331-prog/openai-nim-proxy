@@ -244,7 +244,7 @@ app.listen(PORT, () => {
   console.log(`Thinking mode: ${ENABLE_THINKING_MODE ? 'ENABLED' : 'DISABLED'}`);
 });
 
-const url = `https://yourappname.onrender.com/`; // Replace with your Render URL
+const url = `https://openai-nim-proxy-42aq.onrender.com/`; // Replace with your Render URL
 const interval = 30000; // Interval in milliseconds (30 seconds)
 
 //Reloader Function
