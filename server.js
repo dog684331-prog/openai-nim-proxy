@@ -2,11 +2,6 @@
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
-const http = require('http');
-const https = require('https');
-
-const httpAgent = new http.Agent({ keepAlive: true });
-const httpsAgent = new https.Agent({ keepAlive: true });
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -27,13 +22,13 @@ const ENABLE_THINKING_MODE = false; // Set to true to enable chat_template_kwarg
 
 // Model mapping (adjust based on available NIM models)
 const MODEL_MAPPING = {
-  'gpt-3.5-turbo': 'moonshotai/kimi-k2-instruct',
-  'gpt-4': 'qwen3.5-397b-a17b',
-  'gpt-4-turbo': 'deepseek-ai/deepseek-v3.1-terminus',
+  'gpt-3.5-turbo': 'nvidia/llama-3.1-nemotron-ultra-253b-v1',
+  'gpt-4': 'qwen/qwen3-coder-480b-a35b-instruct',
+  'gpt-4-turbo': 'z-ai/glm-5.1',
   'gpt-4o': 'deepseek-ai/deepseek-v3.2',
   'claude-3-opus': 'deepseek-ai/deepseek-v4-flash',
   'claude-3-sonnet': 'deepseek-ai/deepseek-v4-pro',
-  'gemini-pro': 'z-ai/glm-5.1'
+  'gemini-pro': 'qwen/qwen3-next-80b-a3b-thinking' 
 };
 
 // Health check endpoint
@@ -95,13 +90,13 @@ app.post('/v1/chat/completions', async (req, res) => {
         }
       }
     }
-    console.log(`Using model: ${nimModel} for request: ${model}`);
+    
     // Transform OpenAI request to NIM format
     const nimRequest = {
       model: nimModel,
       messages: messages,
-      temperature: temperature || 0.9,
-      max_tokens: max_tokens || 4096,
+      temperature: temperature || 0.6,
+      max_tokens: max_tokens || 9024,
       extra_body: ENABLE_THINKING_MODE ? { chat_template_kwargs: { thinking: true } } : undefined,
       stream: stream || false
     };
@@ -112,9 +107,7 @@ app.post('/v1/chat/completions', async (req, res) => {
         'Authorization': `Bearer ${NIM_API_KEY}`,
         'Content-Type': 'application/json'
       },
-      responseType: stream ? 'stream' : 'json',
-        httpAgent,
-        httpsAgent,
+      responseType: stream ? 'stream' : 'json'
     });
     
     if (stream) {
@@ -250,19 +243,3 @@ app.listen(PORT, () => {
   console.log(`Reasoning display: ${SHOW_REASONING ? 'ENABLED' : 'DISABLED'}`);
   console.log(`Thinking mode: ${ENABLE_THINKING_MODE ? 'ENABLED' : 'DISABLED'}`);
 });
-
-const url = `https://openai-nim-proxy-42aq.onrender.com/`; // Replace with your Render URL
-const interval = 30000; // Interval in milliseconds (30 seconds)
-
-//Reloader Function
-function reloadWebsite() {
-  axios.get(url)
-    .then(response => {
-      console.log(`Reloaded at ${new Date().toISOString()}: Status Code ${response.status}`);
-    })
-    .catch(error => {
-      console.error(`Error reloading at ${new Date().toISOString()}:`, error.message);
-    });
-}
-
-setInterval(reloadWebsite, interval);
